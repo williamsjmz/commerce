@@ -1,0 +1,113 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    <h2>Listing: {{ listing.title }}</h2>
+
+
+    <p>
+        {% if success_message %}
+            {{ success_message }}
+        {% elif failure_message %}
+            {{ failure_message }}
+        {% elif error_message %}
+            {{ error_message }}
+        {% endif %}
+    </p>
+    
+    
+    <img style="width: 50%;" src="{{ listing.url_image }}" alt="No image">
+    
+    
+    <p>{{ listing.description }}</p>
+
+    {% if current_bid.amount %}
+        <h3>Current bid: ${{ current_bid.amount }}</h3>
+    {% else %}
+        <h3>${{ listing.starting_bid }}</h3>
+    {% endif %}
+
+    {% if user.is_authenticated %}
+        {% if user == listing.seller and listing.status %}
+            <p>Status: Open</p>
+            <form action="{% url 'listing' listing.id %}" method="post">
+                {% csrf_token %}
+                <input class="btn btn-primary" type="submit" value="Close">
+            </form>
+        {% elif user != listing.seller and listing.status %}
+            <p>Status: Open</p>
+        {% elif user == listing.seller and listing.status == False %}
+            <p>Status: Closed</p>
+            <p>You have close this auction.</p>
+        {% elif user != listing.seller and listing.status == False  %}
+            <p>Status: Closed</p>
+            <p>This auction has ended.</p>
+            {% if user == listing.winner %}
+                <p>CONGRATULATIONS! You are the winner of this auction.</p>
+            {% endif %}
+        {% endif %}
+        {% if listing.status and user != listing.seller %}
+            <form action="{% url 'listing' listing.id %}" method="post">
+                {% csrf_token %}
+                {{ bidForm.as_p }}
+                <input class="btn btn-primary" type="submit" value="Place Bid">
+            </form>
+        {% endif %}
+    {% else %}
+        {% if listing.status %}
+            <p>Status: Open</p>
+        {% else %}
+            <p>Status: Closed</p>
+        {% endif %}
+    {% endif %}
+
+
+    <p>
+        {% if num_bids > 0 and user.is_authenticated and user == current_bid.bidder %}
+            {{ num_bids }} bid(s) so far. Your bid is the current bid.
+        {% elif num_bids > 0 %}
+            {{ num_bids }} bid(s) so far.
+        {% else %}
+            No Bids Yet.
+        {% endif %}
+    </p>
+
+
+    <h3>Details</h2>
+    <ul>
+        <li>Listed by: 
+            <a href="#">
+                {{ listing.seller }}
+            </a>
+        </li>
+        <li>
+            {% if listing.category %}
+                Category: {{ listing.category }}
+            {% else %}
+                Category: No Category Listed
+            {% endif %}
+        </li>
+        <li>
+            Starting bid: ${{ listing.starting_bid }}
+        </li>
+        <li>
+            Creation date: {{ listing.date_created }}
+        </li>
+    </ul>
+
+    
+    <h3>Comments</h3>
+    {% if comments %}
+        <ul>
+            {% for comment in comments %}
+                <li>
+                    {{ comment }}
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        There is no comments yet.
+    {% endif %}
+
+{% endblock %}
+
+
