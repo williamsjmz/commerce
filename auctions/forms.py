@@ -2,7 +2,7 @@ from typing import List
 from django import forms
 from django.forms import fields, models, widgets
 
-from .models import Listing, Bid
+from .models import Comment, Listing, Bid
 
 class ListingForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
@@ -34,13 +34,14 @@ class BidForm(forms.ModelForm):
             'amount',
         ]
 
-'''class StatusForm(forms.ModelForm):
+
+class CommentForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
-        super(StatusForm, self).__init__(*args, **kwargs)
-        self.fields['status'].label = 'Close'
+        super(CommentForm, self).__init__(*args, **kwargs)
+        self.fields['comment'].label = 'Comment'
 
     class Meta:
-        model = Listing
+        model = Comment
         fields = [
-            'status',
-        ]'''
+            'comment',
+        ]
