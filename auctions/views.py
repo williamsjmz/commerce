@@ -106,6 +106,7 @@ def listing(request, listing_id):
         listing = Listing.objects.get(id=listing_id)
         current_bid = get_current_bid(listing.auctions.filter(listing=listing_id))
         bidForm = BidForm(request.POST)
+        commentForm = CommentForm(request.POST)
         if bidForm.is_valid():
             #Attempt to place bid
             try:
@@ -119,27 +120,56 @@ def listing(request, listing_id):
                     return render(request, "auctions/listing.html", {
                         "listing": listing,
                         "current_bid": get_current_bid(listing.auctions.filter(listing=listing_id)),
-                        "comments": listing.users_comments.all(),
                         "num_bids": len(Bid.objects.filter(listing=listing)),
                         "bidForm": BidForm(),
+                        "commentForm": CommentForm(),
+                        "comments": listing.users_comments.all(),
                         "success_message": "Success! Your bid is the current bid."
                     })
                 else:
                     return render(request, "auctions/listing.html", {
                         "listing": listing,
                         "current_bid": current_bid,
-                        "comments": listing.users_comments.all(),
                         "num_bids": len(Bid.objects.filter(listing=listing)),
                         "bidForm": BidForm(),
+                        "commentForm": CommentForm(),
+                        "comments": listing.users_comments.all(),
                         "failure_message": "Failure! Your bid is very small"
                     })
             except:
                 return render(request, "auctions/listing.html", {
                     "listing": listing,
                     "current_bid": get_current_bid(Bid.objects.filter(listing=listing)),
-                    "comments": listing.users_comments.all(),
                     "num_bids": len(Bid.objects.filter(listing=listing)),
                     "bidForm": BidForm(),
+                    "commentForm": CommentForm(),
+                    "comments": listing.users_comments.all(),
+                    "error_message": "An unexpected error has occurred.",
+                })
+        elif commentForm.is_valid():
+            try:
+                comment = commentForm.cleaned_data["comment"]
+                newComment = commentForm.save(commit=False)
+                newComment.user_name = request.user
+                newComment.listing = listing
+                newComment.save()
+                return render(request, "auctions/listing.html", {
+                    "listing": listing,
+                    "current_bid": get_current_bid(listing.auctions.filter(listing=listing_id)),
+                    "num_bids": len(Bid.objects.filter(listing=listing)),
+                    "bidForm": BidForm(),
+                    "commentForm": CommentForm(),
+                    "comments": listing.users_comments.all(),
+                    "successful_comment": "Success! You have commented on this auction."
+                })
+            except:
+                return render(request, "auctions/listing.html", {
+                    "listing": listing,
+                    "current_bid": get_current_bid(Bid.objects.filter(listing=listing)),
+                    "num_bids": len(Bid.objects.filter(listing=listing)),
+                    "bidForm": BidForm(),
+                    "commentForm": CommentForm(),
+                    "comments": listing.users_comments.all(),
                     "error_message": "An unexpected error has occurred.",
                 })
         else:
@@ -149,9 +179,10 @@ def listing(request, listing_id):
             return render(request, "auctions/listing.html", {
                 "listing": listing,
                 "current_bid": get_current_bid(Bid.objects.filter(listing=listing)),
-                "comments": listing.users_comments.all(),
                 "num_bids": len(Bid.objects.filter(listing=listing)),
                 "bidForm": bidForm,
+                "commentForm": CommentForm(),
+                "comments": listing.users_comments.all(),
                 "error_message": "The data entered is not correct",
             })
     else:
@@ -162,7 +193,8 @@ def listing(request, listing_id):
         return render (request, "auctions/listing.html", {
             "listing": listing,
             "current_bid": get_current_bid(Bid.objects.filter(listing=listing)),
-            "comments": listing.users_comments.all(),
             "num_bids": len(Bid.objects.filter(listing=listing)),
             "bidForm": BidForm(),
+            "commentForm": CommentForm(),
+            "comments": listing.users_comments.all(),
         })

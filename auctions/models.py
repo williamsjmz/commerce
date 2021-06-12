@@ -36,8 +36,8 @@ class Bid(models.Model):
 
 class Comment(models.Model):
     user_name = models.ForeignKey(User, on_delete=models.CASCADE, related_name="comments_made")
-    comment = models.CharField(max_length=100)
-    date_created = models.DateField(auto_now_add=True)
+    comment = models.TextField(max_length=2000)
+    date_created = models.DateTimeField(default=timezone.now)
     listing = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name="users_comments", blank=True, null=True)
 
     def __str__(self):

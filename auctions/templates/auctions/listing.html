@@ -11,6 +11,8 @@
             {{ failure_message }}
         {% elif error_message %}
             {{ error_message }}
+        {% elif successful_comment %}
+            {{ successful_comment }}
         {% endif %}
     </p>
     
@@ -94,13 +96,20 @@
         </li>
     </ul>
 
+    {% if user.is_authenticated %}
+        <form action="{% url 'listing' listing.id %}" method="post">
+            {% csrf_token %}
+            {{ commentForm.as_p }}
+            <input class="btn btn-primary" type="submit" value="Comment">
+        </form>
+    {% endif %}
     
     <h3>Comments</h3>
     {% if comments %}
         <ul>
             {% for comment in comments %}
                 <li>
-                    {{ comment }}
+                    <strong>{{ comment.user_name }}:</strong> {{ comment.comment }}
                 </li>
             {% endfor %}
         </ul>
