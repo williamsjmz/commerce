@@ -20,6 +20,7 @@ class Listing(models.Model):
     seller = models.ForeignKey(User, on_delete=models.CASCADE, related_name="sales")
     status = models.BooleanField(default=True)
     winner = models.ForeignKey(User, on_delete=SET_NULL, null=True)
+    interested_user = models.ForeignKey(User, on_delete=SET_NULL, blank=True, null=True, related_name="watchlist")
 
     def __str__(self):
         return f"{self.seller} : {self.title}"
@@ -42,3 +43,12 @@ class Comment(models.Model):
 
     def __str__(self):
         return f"{self.user_name} : {self.comment}"
+
+
+class InterestAuction(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="interested_auctions")
+    listing = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name="interested_users")
+    date_added = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return f"{self.user}: {self.listing.title}"

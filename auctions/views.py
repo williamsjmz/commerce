@@ -7,7 +7,7 @@ from django.shortcuts import render
 from django.urls import reverse
 from django.utils.html import urlize
 
-from .models import Bid, Comment, Listing, User
+from .models import *
 from .forms import *
 from .utils import *
 
@@ -173,9 +173,19 @@ def listing(request, listing_id):
                     "error_message": "An unexpected error has occurred.",
                 })
         else:
-            listing.status = False
-            listing.winner = current_bid.bidder
-            listing.save()
+            if request.user == listing.seller and listing.status:
+                listing.status = False
+                if listing.winner:
+                    listing.winner = current_bid.bidder
+                listing.save()
+                message = "Success! You have closed this auction."
+            elif request.user != listing.seller and listing.status:
+                if isInMyWatchlist(listing.title, request.user.interested_auctions.all()):
+                    message = f"Failure! You already have {listing.title} added to your watchlist." 
+                else:
+                    newInterestedAuction = InterestAuction(user=request.user, listing=listing)
+                    newInterestedAuction.save()
+                    message = f"Success! You have added {listing.title} to your watchlist."                 
             return render(request, "auctions/listing.html", {
                 "listing": listing,
                 "current_bid": get_current_bid(Bid.objects.filter(listing=listing)),
@@ -183,7 +193,7 @@ def listing(request, listing_id):
                 "bidForm": bidForm,
                 "commentForm": CommentForm(),
                 "comments": listing.users_comments.all(),
-                "error_message": "The data entered is not correct",
+                "message": message,
             })
     else:
         try:

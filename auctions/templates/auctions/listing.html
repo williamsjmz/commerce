@@ -13,6 +13,8 @@
             {{ error_message }}
         {% elif successful_comment %}
             {{ successful_comment }}
+        {% elif message %}
+            {{ message }}
         {% endif %}
     </p>
     
@@ -21,6 +23,7 @@
     
     
     <p>{{ listing.description }}</p>
+
 
     {% if current_bid.amount %}
         <h3>Current bid: ${{ current_bid.amount }}</h3>
@@ -37,6 +40,10 @@
             </form>
         {% elif user != listing.seller and listing.status %}
             <p>Status: Open</p>
+            <form action="{% url 'listing' listing.id %}" method="post">
+                {% csrf_token %}
+                <input class="btn btn-primary" type="submit" value="Add to Watchlist">
+            </form>
         {% elif user == listing.seller and listing.status == False %}
             <p>Status: Closed</p>
             <p>You have close this auction.</p>
@@ -47,6 +54,7 @@
                 <p>CONGRATULATIONS! You are the winner of this auction.</p>
             {% endif %}
         {% endif %}
+
         {% if listing.status and user != listing.seller %}
             <form action="{% url 'listing' listing.id %}" method="post">
                 {% csrf_token %}

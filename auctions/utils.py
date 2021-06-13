@@ -16,3 +16,9 @@ def get_auctions(listings):
     print(auctions)
     return auctions
 
+def isInMyWatchlist(title, interested_auctions):
+    for interested_auction in interested_auctions:
+        if title == interested_auction.listing.title:
+            return True
+    return False
+
