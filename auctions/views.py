@@ -208,3 +208,17 @@ def listing(request, listing_id):
             "commentForm": CommentForm(),
             "comments": listing.users_comments.all(),
         })
+
+
+@login_required
+def watchlist(request, user_id):
+    if request.user.id == user_id:
+        user = User.objects.get(id=user_id)
+        return render(request, "auctions/watchlist.html", {
+            "interested_auctions": user.interested_auctions.all(),
+            "username": user.username
+        })
+    else:
+        return render(request, "auctions/watchlist.html", {
+            "error_message": "Failure! You cannot see this watchlist because it belongs to another user."
+        }) 
