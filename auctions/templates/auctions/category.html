@@ -1,0 +1,38 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    <h2>Category: {{ category_name }}</h2>
+
+    {% if auctions %}
+        {% for listing, current_bid in auctions %}
+            {% if listing.status %}
+                <div class="card" style="margin: 10px;">
+                    <div class="card-body">
+                        <img class="card-img-top" style="width: 20%;" src="{{ listing.url_image }}" alt="No image">
+                        <h5 class="card-title">{{ listing.title }}</h5>
+                        <p class="card-text">{{ listing.description }}</p>
+                        <p class="card-text">
+                            {% if current_bid.amount %}
+                                Current price: ${{ current_bid.amount }}
+                            {% else %}
+                                Starting price: ${{ listing.starting_bid }}
+                            {% endif %}
+                        </p>
+                        <a href="{% url 'listing' listing.id %}" class="btn btn-primary">View</a>
+                    </div>
+                    <div class="card-footer">
+                        <small class="text-muted">{{ listing.date_created }}</small>
+                    </div>
+                </div>
+            {% else %}
+                There is not auction listings yet.
+            {% endif %}
+        {% endfor %}
+    {% else %}
+        There is not auction listings yet.
+    {% endif %}
+
+    
+{% endblock %}
+
+

@@ -1,7 +1,8 @@
+from os import name
 from typing import List
 from django.contrib.auth import authenticate, login, logout
-from django.db import IntegrityError
-from django.http import HttpResponse, HttpResponseRedirect
+from django.db import IntegrityError, reset_queries
+from django.http import HttpResponse, HttpResponseRedirect, request
 from django.http.response import Http404
 from django.shortcuts import render
 from django.urls import reverse
@@ -222,3 +223,18 @@ def watchlist(request, user_id):
         return render(request, "auctions/watchlist.html", {
             "error_message": "Failure! You cannot see this watchlist because it belongs to another user."
         }) 
+
+
+def categories(request):
+    return render(request, "auctions/categories.html", {
+        "categories": Category.objects.all()
+    })
+
+
+def category(request, category_id):
+    category = Category.objects.get(pk=category_id)
+    auctions = get_auctions(Listing.objects.filter(category=category).all())
+    return render(request, "auctions/category.html", {
+        "auctions": auctions,
+        "category_name": category.name
+    })
