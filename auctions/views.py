@@ -126,7 +126,7 @@ def listing(request, listing_id):
                         "commentForm": CommentForm(),
                         "comments": listing.users_comments.all(),
                         "success_message": "Success! Your bid is the current bid.",
-                        "interested_auctions": request.user.interested_auctions.all()
+                        "is_in_my_watchlist": isInMyWatchlist(listing.title, request.user.interested_auctions.all())
                     })
                 else:
                     return render(request, "auctions/listing.html", {
@@ -137,7 +137,7 @@ def listing(request, listing_id):
                         "commentForm": CommentForm(),
                         "comments": listing.users_comments.all(),
                         "failure_message": "Failure! Your bid is very small",
-                        "interested_auctions": request.user.interested_auctions.all()
+                        "is_in_my_watchlist": isInMyWatchlist(listing.title, request.user.interested_auctions.all())
                     })
             except:
                 return render(request, "auctions/listing.html", {
@@ -148,7 +148,7 @@ def listing(request, listing_id):
                     "commentForm": CommentForm(),
                     "comments": listing.users_comments.all(),
                     "error_message": "An unexpected error has occurred.",
-                    "interested_auctions": request.user.interested_auctions.all()
+                    "is_in_my_watchlist": isInMyWatchlist(listing.title, request.user.interested_auctions.all())
                 })
         elif commentForm.is_valid():
             try:
@@ -165,7 +165,7 @@ def listing(request, listing_id):
                     "commentForm": CommentForm(),
                     "comments": listing.users_comments.all(),
                     "successful_comment": "Success! You have commented on this auction.",
-                    "interested_auctions": request.user.interested_auctions.all()
+                    "is_in_my_watchlist": isInMyWatchlist(listing.title, request.user.interested_auctions.all())
                 })
             except:
                 return render(request, "auctions/listing.html", {
@@ -176,7 +176,7 @@ def listing(request, listing_id):
                     "commentForm": CommentForm(),
                     "comments": listing.users_comments.all(),
                     "error_message": "An unexpected error has occurred.",
-                    "interested_auctions": request.user.interested_auctions.all()
+                    "is_in_my_watchlist": isInMyWatchlist(listing.title, request.user.interested_auctions.all())
                 })
         else:
             if request.user == listing.seller and listing.status:
