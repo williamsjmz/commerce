@@ -125,7 +125,8 @@ def listing(request, listing_id):
                         "bidForm": BidForm(),
                         "commentForm": CommentForm(),
                         "comments": listing.users_comments.all(),
-                        "success_message": "Success! Your bid is the current bid."
+                        "success_message": "Success! Your bid is the current bid.",
+                        "interested_auctions": request.user.interested_auctions.all()
                     })
                 else:
                     return render(request, "auctions/listing.html", {
@@ -135,7 +136,8 @@ def listing(request, listing_id):
                         "bidForm": BidForm(),
                         "commentForm": CommentForm(),
                         "comments": listing.users_comments.all(),
-                        "failure_message": "Failure! Your bid is very small"
+                        "failure_message": "Failure! Your bid is very small",
+                        "interested_auctions": request.user.interested_auctions.all()
                     })
             except:
                 return render(request, "auctions/listing.html", {
@@ -146,6 +148,7 @@ def listing(request, listing_id):
                     "commentForm": CommentForm(),
                     "comments": listing.users_comments.all(),
                     "error_message": "An unexpected error has occurred.",
+                    "interested_auctions": request.user.interested_auctions.all()
                 })
         elif commentForm.is_valid():
             try:
@@ -161,7 +164,8 @@ def listing(request, listing_id):
                     "bidForm": BidForm(),
                     "commentForm": CommentForm(),
                     "comments": listing.users_comments.all(),
-                    "successful_comment": "Success! You have commented on this auction."
+                    "successful_comment": "Success! You have commented on this auction.",
+                    "interested_auctions": request.user.interested_auctions.all()
                 })
             except:
                 return render(request, "auctions/listing.html", {
@@ -172,17 +176,21 @@ def listing(request, listing_id):
                     "commentForm": CommentForm(),
                     "comments": listing.users_comments.all(),
                     "error_message": "An unexpected error has occurred.",
+                    "interested_auctions": request.user.interested_auctions.all()
                 })
         else:
             if request.user == listing.seller and listing.status:
                 listing.status = False
-                if listing.winner:
+                if current_bid is not 0:
                     listing.winner = current_bid.bidder
+                    message = f"Success! You have closed this auction. {listing.winner} won the auction."
+                else:
+                    message = "Success! You have closed this auction. Nobody won the auction"
                 listing.save()
-                message = "Success! You have closed this auction."
             elif request.user != listing.seller and listing.status:
                 if isInMyWatchlist(listing.title, request.user.interested_auctions.all()):
-                    message = f"Failure! You already have {listing.title} added to your watchlist." 
+                    request.user.interested_auctions.filter(listing=listing).delete()
+                    message = f"Success! You have removed {listing.title} from your watchlist"
                 else:
                     newInterestedAuction = InterestAuction(user=request.user, listing=listing)
                     newInterestedAuction.save()
@@ -195,6 +203,7 @@ def listing(request, listing_id):
                 "commentForm": CommentForm(),
                 "comments": listing.users_comments.all(),
                 "message": message,
+                "is_in_my_watchlist": isInMyWatchlist(listing.title, request.user.interested_auctions.all())
             })
     else:
         try:
@@ -208,6 +217,7 @@ def listing(request, listing_id):
             "bidForm": BidForm(),
             "commentForm": CommentForm(),
             "comments": listing.users_comments.all(),
+            "is_in_my_watchlist": isInMyWatchlist(listing.title, request.user.interested_auctions.all())
         })
 
 

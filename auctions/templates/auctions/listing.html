@@ -28,39 +28,47 @@
     {% if current_bid.amount %}
         <h3>Current bid: ${{ current_bid.amount }}</h3>
     {% else %}
-        <h3>${{ listing.starting_bid }}</h3>
+        <h3>Starting bid: ${{ listing.starting_bid }}</h3>
     {% endif %}
 
     {% if user.is_authenticated %}
-        {% if user == listing.seller and listing.status %}
+        {% if listing.status%}
             <p>Status: Open</p>
-            <form action="{% url 'listing' listing.id %}" method="post">
-                {% csrf_token %}
-                <input class="btn btn-primary" type="submit" value="Close">
-            </form>
-        {% elif user != listing.seller and listing.status %}
-            <p>Status: Open</p>
-            <form action="{% url 'listing' listing.id %}" method="post">
-                {% csrf_token %}
-                <input class="btn btn-primary" type="submit" value="Add to Watchlist">
-            </form>
-        {% elif user == listing.seller and listing.status == False %}
-            <p>Status: Closed</p>
-            <p>You have close this auction.</p>
-        {% elif user != listing.seller and listing.status == False  %}
-            <p>Status: Closed</p>
-            <p>This auction has ended.</p>
-            {% if user == listing.winner %}
-                <p>CONGRATULATIONS! You are the winner of this auction.</p>
+            {% if user == listing.seller %}
+                <form action="{% url 'listing' listing.id %}" method="post">
+                    {% csrf_token %}
+                    <input class="btn btn-primary" type="submit" value="Close">
+                </form>
+            {% else %}
+                {% if is_in_my_watchlist %}
+                    <form action="{% url 'listing' listing.id %}" method="post">
+                        {% csrf_token %}
+                        <input class="btn btn-primary" type="submit" value="Remove from Watchlist">
+                    </form>
+                {% else %}
+                    <form action="{% url 'listing' listing.id %}" method="post">
+                        {% csrf_token %}
+                        <input class="btn btn-primary" type="submit" value="Add to Watchlist">
+                    </form>
+                {% endif %}
+                <form action="{% url 'listing' listing.id %}" method="post">
+                    {% csrf_token %}
+                    {{ bidForm.as_p }}
+                    <input class="btn btn-primary" type="submit" value="Place Bid">
+                </form>
             {% endif %}
-        {% endif %}
-
-        {% if listing.status and user != listing.seller %}
-            <form action="{% url 'listing' listing.id %}" method="post">
-                {% csrf_token %}
-                {{ bidForm.as_p }}
-                <input class="btn btn-primary" type="submit" value="Place Bid">
-            </form>
+        {% else %}
+            <p>Status: Closed</p>
+            {% if user == listing.seller %}
+                <p>Status: Closed</p>
+                <p>You have close this auction.</p>
+            {% else %}
+                <p>Status: Closed</p>
+                <p>This auction has ended.</p>
+                {% if user == listing.winner %}
+                    <p>CONGRATULATIONS! You are the winner of this auction.</p>
+                {% endif %}
+            {% endif %}
         {% endif %}
     {% else %}
         {% if listing.status %}
