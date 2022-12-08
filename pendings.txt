@@ -1,1 +1,0 @@
-- Hacer que current_bid se inicialice y auctualice
